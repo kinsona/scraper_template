@@ -11,16 +11,27 @@ recipe = {}
 agent = Mechanize.new
 
 page = agent.get(url)
-recipe_section = page.search('.recipe')
+recipe_section = page.search('.recipe') || page
 
-recipe['title'] = recipe_section.search("h1.recipe-title").attribute('data-name')
+def recipe_search(node, query, attribute_name)
+  result = node.search(query)
+  if result.empty?
+    return nil
+  else
+    return result.attribute(attribute_name)
+  end
+end
 
-recipe['author'] = recipe_section.search('.author').attribute('data-author')
+
+recipe['title'] = recipe_search(recipe_section, "h1.recipe-title", "data-name")
+
+recipe['author'] = recipe_search(recipe_section, '.author', 'data-author')
+
+
 
 # use this one instead of the SEO one in the header b/c it's large not jumbo
-recipe['image_url'] = recipe_section.search('.recipe-intro img').attribute('src')
-# jumbo_image_url = recipe.search('.recipe article').attribute('data-seo-image-url')
-
+recipe['image_url'] = recipe_search(recipe_section, '.recipe-intro img', 'src')
+# 'data-seo-image-url'
 
 
 def parse(list_node)
